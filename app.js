@@ -16,6 +16,7 @@ let activePlayer = 0;
 let current = 0;
 const firstDiceElement = document.querySelector('#dice-1');
 const secondDiceElement = document.querySelector('#dice-2');
+const winningScoreElement = document.querySelector('.winning-score');
 
 let Dice = function(elem) {
   this.dice = elem
@@ -46,24 +47,31 @@ const initGame = () => {
 initGame();
 
 document.querySelector('.btn-roll').addEventListener('click', function() {
-  dice1.rollDice();
-  dice2.rollDice();
+  const winningScoreValue = winningScoreElement.value;
+  if (winningScoreValue) {
+    dice1.rollDice();
+    dice2.rollDice();
 
-  if (
-    dice1.diceValue !== RESET_VALUE 
-    && dice2.diceValue !== RESET_VALUE 
-    && dice1.diceValue !== dice2.diceValue
-  ) {
-    current += (dice1.diceValue + dice2.diceValue);
-    document.getElementById('current-'+activePlayer).textContent = current;
+    if (
+      dice1.diceValue !== RESET_VALUE 
+      && dice2.diceValue !== RESET_VALUE 
+      && dice1.diceValue !== dice2.diceValue
+    ) {
+      current += (dice1.diceValue + dice2.diceValue);
+      document.getElementById('current-'+activePlayer).textContent = current;
 
-    if (scores[activePlayer] + current >= 20) {
-      alert(`Player ${activePlayer} won!!!`);
+  const winningScoreValue = winningScoreElement.value;
+      if (scores[activePlayer] + current >= winningScoreValue) {
+        alert(`Player ${activePlayer} won!!!`);
+      }
+      
+    } else {
+      changePlayer();
     }
-    
   } else {
-    changePlayer();
+    winningScoreElement.focus();
   }
+  
 });
 
 const changePlayer = () => {

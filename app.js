@@ -11,12 +11,15 @@ GAME RULES:
 
 const RESET_VALUE = 2;
 
-let scores = [0, 0];
+let scores = [];
 let activePlayer = 0;
 let current = 0;
+
 const firstDiceElement = document.querySelector('#dice-1');
 const secondDiceElement = document.querySelector('#dice-2');
 const winningScoreElement = document.querySelector('.winning-score');
+const firstPlayerElement = document.querySelector('#name-0');
+const secondPlayerElement = document.querySelector('#name-1');
 
 let Dice = function(elem) {
   this.dice = elem
@@ -35,6 +38,19 @@ Dice.prototype.rollDice = function() {
 const dice1 = new Dice(firstDiceElement);
 const dice2 = new Dice(secondDiceElement);
 
+let Gamer = function(name) {
+  this.playerName = name;
+}
+Gamer.prototype.setScore = function(score) {
+  this.score += score;
+}
+Gamer.prototype.getScore = function() {
+  return this.score;
+}
+Gamer.prototype.resetScore = function() {
+  this.score = 0;
+}
+
 const initGame = () => {
   document.querySelector('#current-0').textContent = 0;
   document.querySelector('#current-1').textContent = 0;
@@ -42,6 +58,14 @@ const initGame = () => {
   document.querySelector('#score-1').textContent = 0;
   dice1.initDice();
   dice2.initDice();
+  let firstPlayerName = prompt('Enter name first player');
+  let secondPlayerName = prompt('Enter name second player');
+  firstPlayerElement.textContent = firstPlayerName;
+  secondPlayerElement.textContent = secondPlayerName;
+  scores[0] = new Gamer(firstPlayerName);
+  scores[1] = new Gamer(secondPlayerName);
+  scores[0].resetScore();
+  scores[1].resetScore();
 }
 
 initGame();
@@ -60,11 +84,10 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
       current += (dice1.diceValue + dice2.diceValue);
       document.getElementById('current-'+activePlayer).textContent = current;
 
-  const winningScoreValue = winningScoreElement.value;
-      if (scores[activePlayer] + current >= winningScoreValue) {
-        alert(`Player ${activePlayer} won!!!`);
+      const winningScoreValue = winningScoreElement.value;
+      if (scores[activePlayer].getScore() + current >= winningScoreValue) {
+        alert(`Player ${scores[activePlayer].playerName} won!!!`);
       }
-      
     } else {
       changePlayer();
     }
@@ -85,8 +108,8 @@ const changePlayer = () => {
 }
 
 document.querySelector('.btn-hold').addEventListener('click', function() {
-  scores[activePlayer] += current;
-  document.querySelector(`#score-${activePlayer}`).textContent = scores[activePlayer];
+  scores[activePlayer].setScore(current);
+  document.querySelector(`#score-${activePlayer}`).textContent = scores[activePlayer].getScore();
   changePlayer();
 });
 

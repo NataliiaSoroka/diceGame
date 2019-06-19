@@ -157,10 +157,25 @@ i {
 .winning-score {
     position: absolute;
     left: 50%;
-    bottom: 40px;
+    bottom: 60px;
     transform: translateX(-50%);
     outline: none;
     border: 1px solid orange;
     border-radius: 5px;
     padding: 5px;
+}
+
+.winners {
+    background-color: orange;
+    padding: 5px;
+    border: none;
+    border-radius: 3px;
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 10px;
+    color: white;
+    font-weight: bold;
+    outline: none;
+    cursor: pointer;
 }

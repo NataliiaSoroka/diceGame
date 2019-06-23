@@ -63,6 +63,7 @@ const initGame = () => {
   document.querySelector('#current-1').textContent = 0;
   document.querySelector('#score-0').textContent = 0;
   document.querySelector('#score-1').textContent = 0;
+  current = 0;
   dice1.initDice();
   dice2.initDice();
   let firstPlayerName = prompt('Enter name first player');
@@ -109,7 +110,9 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
         let name = scores[activePlayer].playerName;
         let winner = checkExistPlayer(name)
         window.localStorage.setItem(name, winner ? ++winner : 1);
-        alert(`Player ${name} won!!!`);
+        let isNewGame = confirm(`Player ${name} won!!! \nDo you want start new game?`);
+        
+        isNewGame && initGame();
       }
     } else {
       changePlayer();

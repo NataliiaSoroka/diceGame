@@ -51,19 +51,40 @@ Gamer.prototype.resetScore = function() {
   this.score = 0;
 }
 
+const checkExistPlayer = name => {
+  let playerFromStorage = window.localStorage.getItem(name);
+  if (playerFromStorage) {
+    return playerFromStorage;
+  } 
+}
+
 const initGame = () => {
   document.querySelector('#current-0').textContent = 0;
   document.querySelector('#current-1').textContent = 0;
   document.querySelector('#score-0').textContent = 0;
   document.querySelector('#score-1').textContent = 0;
+  current = 0;
   dice1.initDice();
   dice2.initDice();
   let firstPlayerName = prompt('Enter name first player');
+  if (checkExistPlayer(firstPlayerName)) {
+    let answer = confirm('User already exist. It is you?');
+    if (!answer) {
+      firstPlayerName = prompt('Enter other name');
+    }
+  }
+  scores[0] = new Gamer(firstPlayerName);
   let secondPlayerName = prompt('Enter name second player');
+  if (checkExistPlayer(secondPlayerName)) {
+    let answer = confirm('User already exist. It is you?');
+    if (!answer) {
+      secondPlayerName = prompt('Enter other name');
+    }
+  }
+  scores[1] = new Gamer(secondPlayerName);
+
   firstPlayerElement.textContent = firstPlayerName;
   secondPlayerElement.textContent = secondPlayerName;
-  scores[0] = new Gamer(firstPlayerName);
-  scores[1] = new Gamer(secondPlayerName);
   scores[0].resetScore();
   scores[1].resetScore();
 }
@@ -86,7 +107,12 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
 
       const winningScoreValue = winningScoreElement.value;
       if (scores[activePlayer].getScore() + current >= winningScoreValue) {
-        alert(`Player ${scores[activePlayer].playerName} won!!!`);
+        let name = scores[activePlayer].playerName;
+        let winner = checkExistPlayer(name)
+        window.localStorage.setItem(name, winner ? ++winner : 1);
+        let isNewGame = confirm(`Player ${name} won!!! \nDo you want start new game?`);
+        
+        isNewGame && initGame();
       }
     } else {
       changePlayer();
@@ -117,3 +143,20 @@ document.querySelector('.btn-hold').addEventListener('click', function() {
 document.querySelector('.btn-new').addEventListener('click', function() {
   initGame();
 });
+
+document.querySelector('.winners').addEventListener('click', function() {
+  let str = '';
+  let winnersArr = Object.keys(window.localStorage).map((el) => {
+    return {
+      name: el,
+      score: window.localStorage[el]
+    }
+  });
+  if (winnersArr) {
+    let sortableWinner = winnersArr.sort((a, b) => {
+      return a.score > b.score ? -1 : 1;
+    })
+    sortableWinner.forEach(el => str += el.name + ': ' + el.score+ '\n')
+  }
+  alert(str ? str : 'There are not winners');
+})

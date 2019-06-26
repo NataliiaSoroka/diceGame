@@ -9,6 +9,9 @@ GAME RULES:
 
 */
 
+import gamer from './gamer';
+import dice from './dice';
+
 const RESET_VALUE = 2;
 
 let scores = [];
@@ -21,42 +24,10 @@ const winningScoreElement = document.querySelector('.winning-score');
 const firstPlayerElement = document.querySelector('#name-0');
 const secondPlayerElement = document.querySelector('#name-1');
 
-let Dice = function(elem) {
-  this.dice = elem
-}
 
-Dice.prototype.initDice = function() {
-  this.dice.style.display = 'none';
-}
+const dice1 = dice.createDice(firstDiceElement);
+const dice2 = dice.createDice(secondDiceElement);
 
-Dice.prototype.rollDice = function() {
-  this.diceValue = Math.floor(Math.random() * 6) + 1;
-  this.dice.src = `dice-${this.diceValue}.png`;
-  this.dice.style.display = 'block';
-}
-
-const dice1 = new Dice(firstDiceElement);
-const dice2 = new Dice(secondDiceElement);
-
-let Gamer = function(name) {
-  this.playerName = name;
-}
-Gamer.prototype.setScore = function(score) {
-  this.score += score;
-}
-Gamer.prototype.getScore = function() {
-  return this.score;
-}
-Gamer.prototype.resetScore = function() {
-  this.score = 0;
-}
-
-const checkExistPlayer = name => {
-  let playerFromStorage = window.localStorage.getItem(name);
-  if (playerFromStorage) {
-    return playerFromStorage;
-  } 
-}
 
 const initGame = () => {
   document.querySelector('#current-0').textContent = 0;
@@ -67,21 +38,11 @@ const initGame = () => {
   dice1.initDice();
   dice2.initDice();
   let firstPlayerName = prompt('Enter name first player');
-  if (checkExistPlayer(firstPlayerName)) {
-    let answer = confirm('User already exist. It is you?');
-    if (!answer) {
-      firstPlayerName = prompt('Enter other name');
-    }
-  }
-  scores[0] = new Gamer(firstPlayerName);
+  firstPlayerName = gamer.checkExistPlayer(firstPlayerName);
+  scores[0] = gamer.createPlayer(firstPlayerName);
   let secondPlayerName = prompt('Enter name second player');
-  if (checkExistPlayer(secondPlayerName)) {
-    let answer = confirm('User already exist. It is you?');
-    if (!answer) {
-      secondPlayerName = prompt('Enter other name');
-    }
-  }
-  scores[1] = new Gamer(secondPlayerName);
+  secondPlayerName = gamer.checkExistPlayer(secondPlayerName);
+  scores[1] = gamer.createPlayer(secondPlayerName);
 
   firstPlayerElement.textContent = firstPlayerName;
   secondPlayerElement.textContent = secondPlayerName;
@@ -108,14 +69,15 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
       const winningScoreValue = winningScoreElement.value;
       if (scores[activePlayer].getScore() + current >= winningScoreValue) {
         let name = scores[activePlayer].playerName;
-        let winner = checkExistPlayer(name)
+        let winner = gamer.checkExistPlayer(name);
         window.localStorage.setItem(name, winner ? ++winner : 1);
         let isNewGame = confirm(`Player ${name} won!!! \nDo you want start new game?`);
         
         isNewGame && initGame();
       }
     } else {
-      changePlayer();
+      activePlayer =  gamer.changePlayer(activePlayer, dice1, dice2);
+      current = 0;
     }
   } else {
     winningScoreElement.focus();
@@ -123,20 +85,12 @@ document.querySelector('.btn-roll').addEventListener('click', function() {
   
 });
 
-const changePlayer = () => {
-  current = 0;
-  document.getElementById('current-'+activePlayer).textContent = 0;
-  document.querySelector(`.player-${activePlayer}-panel`).classList.toggle('active');
-  activePlayer = +!activePlayer;
-  dice1.initDice();
-  dice2.initDice();
-  document.querySelector(`.player-${activePlayer}-panel`).classList.toggle('active');
-}
 
 document.querySelector('.btn-hold').addEventListener('click', function() {
   scores[activePlayer].setScore(current);
   document.querySelector(`#score-${activePlayer}`).textContent = scores[activePlayer].getScore();
-  changePlayer();
+  activePlayer = gamer.changePlayer(activePlayer, dice1, dice2);
+  current = 0;
 });
 
 
